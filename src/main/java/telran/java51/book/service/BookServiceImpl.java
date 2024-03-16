@@ -67,17 +67,19 @@ public class BookServiceImpl implements BookService {
 		book.setTitle(title);
 		return modelMapper.map(book, BookDto.class);
 	}
-	@Transactional(readOnly = true)
 	@Override
 	public Iterable<BookDto> findBooksByAuthor(String authorName) {
-		return bookRepository.findByAuthorsName( authorName)
-					.map(b->modelMapper.map(b, BookDto.class)).toList();
+		Author author = authorRepository.findById(authorName).orElseThrow(EntityNotFoundException::new);
+		return author.getBooks().stream()
+					.map(b->modelMapper.map(b, BookDto.class))
+					.toList();
 	}
-	@Transactional(readOnly = true)
 	@Override
 	public Iterable<BookDto> findBooksByPublisher(String publisherName) {
-		return bookRepository.findByPublisherPublisherName(publisherName)
-				.map(b->modelMapper.map(b, BookDto.class)).toList();
+		Publisher publisher = publisherRepository.findById(publisherName).orElseThrow(EntityNotFoundException::new);
+		return publisher.getBooks().stream()
+				.map(b->modelMapper.map(b, BookDto.class))
+				.toList();
 	}
 
 	@Transactional(readOnly = true)
@@ -93,16 +95,16 @@ public class BookServiceImpl implements BookService {
 	@Transactional(readOnly = true)
 	@Override
 	public Iterable<String> findPublishersByAutyor(String authorName) {
-		return bookRepository.findByAuthorsName( authorName)
-				.map(b->b.getPublisher().getPublisherName())
+		return publisherRepository.findDistinctByBooksAuthorsName( authorName)
+				.map(Publisher::getPublisherName)
 				.toList();
 	}
 
 	@Transactional
 	@Override
 	public AuthorDto removeAuthor(String authorName) {
-		bookRepository.findByAuthorsName(authorName)
-					.forEach(b->b.getAuthors().removeIf(a->a.getName().equalsIgnoreCase(authorName)));
+//		bookRepository.findByAuthorsName(authorName)
+//					.forEach(b->b.getAuthors().removeIf(a->a.getName().equalsIgnoreCase(authorName)));
 		Author author = authorRepository.findById(authorName).orElseThrow(EntityNotFoundException::new);
 		authorRepository.deleteById(authorName);
 		return modelMapper.map(author, AuthorDto.class);
