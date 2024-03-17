@@ -1,14 +1,9 @@
 package telran.java51.book.dao;
 
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import telran.java51.book.model.Author;
 
-public interface AuthorRepository  {
-
-	Optional<Author> findById(String publisher);
-	
-	Author save(Author author);
-	void deleteById(String authorname);
+public interface AuthorRepository extends JpaRepository<Author, String> {
 
 }

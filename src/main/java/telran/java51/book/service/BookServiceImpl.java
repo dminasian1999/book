@@ -35,11 +35,11 @@ public class BookServiceImpl implements BookService {
 		}
 		
 		Publisher publisher = publisherRepository.findById(bookDto.getPublisher())
-				.orElseGet(()->publisherRepository.save(new Publisher(bookDto.getPublisher())));
+				.orElse(publisherRepository.save(new Publisher(bookDto.getPublisher())));
 		
 		Set<Author> authors = bookDto.getAuthors().stream()
 				.map(a -> authorRepository.findById(a.getName())
-						.orElseGet(()->authorRepository.save(new Author(a.getName(), a.getBirthDate()))))
+						.orElse(authorRepository.save(new Author(a.getName(), a.getBirthDate()))))
 				.collect(Collectors.toSet());
 		
 		Book book = new Book(bookDto.getIsbn(), bookDto.getTitle(), authors, publisher);
@@ -95,8 +95,8 @@ public class BookServiceImpl implements BookService {
 	@Transactional(readOnly = true)
 	@Override
 	public Iterable<String> findPublishersByAutyor(String authorName) {
-		return publisherRepository.findDistinctByBooksAuthorsName( authorName)
-				.map(Publisher::getPublisherName)
+		return bookRepository.findByAuthorsName( authorName)
+				.map(b->b.getPublisher().getPublisherName())
 				.toList();
 	}
 
